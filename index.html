@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍸 Noche de Amigos & Retos 🍸</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --accent: #ec4899;
+            --accent-hover: #db2777;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--accent);
+            font-size: 2.3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .step-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+
+        /* Botones generales */
+        .btn {
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #64748b;
+            box-shadow: none;
+        }
+        .btn-secondary:hover { background-color: #475569; }
+
+        .btn-auto {
+            background-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .btn-auto:hover { background-color: #059669; }
+
+        /* Lista de Niveles en Portada */
+        .levels-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .level-btn {
+            background: #0f172a;
+            border: 2px solid #334155;
+            color: #fff;
+            padding: 16px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .level-btn:hover {
+            border-color: var(--accent);
+            transform: translateX(5px);
+            background: #1e293b;
+        }
+
+        .level-badge {
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #334155;
+            color: #cbd5e1;
+        }
+
+        /* Selector Verdad/Reto en Nivel 3 */
+        .sub-type-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .sub-type-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #334155;
+            background: #0f172a;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sub-type-btn.active {
+            border-color: var(--accent);
+            background: var(--accent);
+        }
+
+        /* Banner del Tablero */
+        .level-header {
+            background: linear-gradient(90deg, #831843, #500724);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #9d174d;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Cuadrícula de Cajas */
+        .grid-boxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .box {
+            background: linear-gradient(135deg, #6366f1, #4338ca);
+            aspect-ratio: 1 / 1;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            user-select: none;
+            border: 2px solid #818cf8;
+        }
+
+        .box:hover:not(.opened) {
+            transform: translateY(-4px) rotate(2deg);
+            border-color: #c7d2fe;
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.4);
+        }
+
+        .box.opened {
+            background: #1e293b;
+            border-color: #334155;
+            color: #64748b;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid var(--accent);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: popIn 0.3s ease-out;
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.3);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #f472b6;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 25px 0;
+            line-height: 1.4;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-footer {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 15px;
+            border-top: 1px solid #334155;
+            padding-top: 10px;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🍸 Noche de Amigos & Retos 🍸</h1>
+    <p class="subtitle">Elige el nivel de intensidad para empezar el juego</p>
+
+    <!-- PORTADA: SELECCIÓN DE NIVEL -->
+    <div id="stepLevels" class="step-card">
+        <div class="levels-list">
+            <button class="level-btn" onclick="selectLevel(1)">
+                <span>🌱 Nivel 1 - Yo Nunca Nunca (Versión Ligera)</span>
+                <span class="level-badge">30 Cajas</span>
+            </button>
+            <button class="level-btn" onclick="selectLevel(2)">
+                <span>🍻 Nivel 2 – Yo Nunca Nunca (Versión Cargada)</span>
+                <span class="level-badge">30 Cajas</span>
+            </button>
+            <button class="level-btn" onclick="selectLevel(3)">
+                <span>🎭 Nivel 3 – Verdad o Reto</span>
+                <span class="level-badge">20 Verdad / 20 Reto</span>
+            </button>
+            <button class="level-btn" onclick="selectLevel(4)">
+                <span>🔥 Nivel 4 – Solo Retos (Medio)</span>
+                <span class="level-badge">30 Cajas</span>
+            </button>
+            <button class="level-btn" onclick="selectLevel(5)">
+                <span>💥 Nivel 5 – Solo Retos (Más Intensos)</span>
+                <span class="level-badge">30 Cajas</span>
+            </button>
+            <button class="level-btn" onclick="selectLevel(6)">
+                <span>😈 Nivel 6 – Retos +18</span>
+                <span class="level-badge">30 Cajas</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- TABLERO DE JUEGO -->
+    <div id="stepGame" class="hidden">
+        <div class="level-header" id="levelTitleHeader">Nivel Activo</div>
+
+        <!-- Opciones adicionales para Nivel 3 -->
+        <div id="subTypeContainer" class="sub-type-container hidden">
+            <button class="sub-type-btn active" id="btnVerdad" onclick="switchNivel3Subtype('verdad')">💡 20 Cajas Verdad</button>
+            <button class="sub-type-btn" id="btnReto" onclick="switchNivel3Subtype('reto')">🔥 20 Cajas Reto</button>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <button class="btn btn-auto" onclick="pickRandomBox()">🤖 Elección Automática</button>
+            <button class="btn btn-secondary" onclick="showStep('stepLevels')">🏠 Volver al Menú</button>
+        </div>
+
+        <div class="grid-boxes" id="boxGrid"></div>
+    </div>
+</div>
+
+<!-- MODAL PARA MOSTRAR RETO/PREGUNTA -->
+<div class="modal" id="prizeModal">
+    <div class="modal-content">
+        <div class="modal-title" id="modalTitle">RETO / PREGUNTA</div>
+        <div class="modal-text" id="modalText">Contenido...</div>
+
+        <button class="btn" onclick="closeModal()">¡Siguiente Ronda! ➔</button>
+        
+        <div class="modal-footer" id="modalBoxNum">Caja N° --</div>
+    </div>
+</div>
+
+<script>
+const db = {
+    // NIVEL 1: Yo Nunca Nunca (Versión Ligera) - 30 textos
+    1: [
+        "Yo nunca nunca he recibido un masaje en los pies.",
+        "Yo nunca nunca he bailado en público sin vergüenza.",
+        "Yo nunca nunca he tenido un crush por un profesor o jefe.",
+        "Yo nunca nunca he probado un trago muy fuerte de un solo golpe.",
+        "Yo nunca nunca he cantado karaoke borracho.",
+        "Yo nunca nunca he dormido en el sofá de alguien después de una fiesta.",
+        "Yo nunca nunca he enviado un mensaje a la persona equivocada.",
+        "Yo nunca nunca he usado disfraz en una fiesta.",
+        "Yo nunca nunca he recibido un regalo inesperado.",
+        "Yo nunca nunca he bailado bajo la lluvia.",
+        "Yo nunca nunca he tenido una conversación hasta el amanecer.",
+        "Yo nunca nunca he probado comida picante hasta llorar.",
+        "Yo nunca nunca he hecho una broma pesada a alguien.",
+        "Yo nunca nunca he viajado solo por primera vez.",
+        "Yo nunca nunca he visto una película de terror a oscuras.",
+        "Yo nunca nunca he recibido una carta o nota escrita a mano.",
+        "Yo nunca nunca he jugado a las cartas hasta tarde.",
+        "Yo nunca nunca he tenido un apodo vergonzoso.",
+        "Yo nunca nunca he cocinado para alguien especial.",
+        "Yo nunca nunca he perdido las llaves en una fiesta.",
+        "Yo nunca nunca he bailado en la cocina de madrugada.",
+        "Yo nunca nunca he tenido un sueño raro y contarlo.",
+        "Yo nunca nunca he usado ropa de otra persona.",
+        "Yo nunca nunca he hecho un brindis improvisado.",
+        "Yo nunca nunca he recibido un abrazo de sorpresa.",
+        "Yo nunca nunca he jugado a verdad o reto de adolescente.",
+        "Yo nunca nunca he visto el amanecer después de no dormir.",
+        "Yo nunca nunca he mandado un audio largo y vergonzoso.",
+        "Yo nunca nunca he probado un look completamente nuevo.",
+        "Yo nunca nunca he tenido una risa incontrolable en un momento serio."
+    ],
+
+    // NIVEL 2: Yo Nunca Nunca (Versión Cargada) - 30 textos
+    2: [
+        "Yo nunca nunca he bailado muy pegado en una fiesta.",
+        "Yo nunca nunca he recibido un masaje en la espalda.",
+        "Yo nunca nunca he besado el cuello de alguien.",
+        "Yo nunca nunca he tenido un sueño erótico.",
+        "Yo nunca nunca he mandado un mensaje con doble sentido.",
+        "Yo nunca nunca he usado ropa interior sexy.",
+        "Yo nunca nunca he bailado solo frente al espejo.",
+        "Yo nunca nunca he coqueteado hasta tarde por chat.",
+        "Yo nunca nunca he tenido un crush por alguien prohibido.",
+        "Yo nunca nunca he probado comida de forma sensual.",
+        "Yo nunca nunca he susurrado algo al oído.",
+        "Yo nunca nunca he dormido abrazado fuerte.",
+        "Yo nunca nunca he recibido un abrazo muy apretado.",
+        "Yo nunca nunca he bailado lento con manos en la cintura.",
+        "Yo nunca nunca he visto algo íntimo por accidente.",
+        "Yo nunca nunca he jugado a la botella.",
+        "Yo nunca nunca he tenido una cita que terminó en besos intensos.",
+        "Yo nunca nunca he usado perfume para llamar la atención.",
+        "Yo nunca nunca he fantaseado con alguien conocido.",
+        "Yo nunca nunca he probado un beso con mordida suave.",
+        "Yo nunca nunca he recibido caricias en la espalda baja.",
+        "Yo nunca nunca he bailado de forma provocativa.",
+        "Yo nunca nunca he tenido una conversación subida de tono.",
+        "Yo nunca nunca he tocado accidentalmente zonas sensibles.",
+        "Yo nunca nunca he mandado un emoji sugerente.",
+        "Yo nunca nunca he dormido en la misma cama con tensión.",
+        "Yo nunca nunca he jugado juegos que involucraban prendas.",
+        "Yo nunca nunca he recibido un cumplido que me sonrojó.",
+        "Yo nunca nunca he probado poses frente al espejo.",
+        "Yo nunca nunca he tenido un masaje que se puso interesante."
+    ],
+
+    // NIVEL 3: 20 Verdad + 20 Reto
+    3: {
+        verdad: [
+            "¿Qué parte del cuerpo te gusta más que te besen?",
+            "¿Cuál es tu tipo de beso favorito?",
+            "¿Qué canción te pone de buen humor para bailar?",
+            "¿Prefieres caricias suaves o más intensas?",
+            "¿Cuál ha sido tu mejor momento de besos?",
+            "¿Qué te hace sentir más cómoda/o con alguien?",
+            "¿Te gusta más besar o que te besen?",
+            "¿Qué tipo de baile te gusta más?",
+            "¿Qué caricia te relaja más?",
+            "¿Te da curiosidad probar algo nuevo?",
+            "¿Cuál es tu forma favorita de recibir besos?",
+            "¿Qué te pone más nerviosa/o pero te gusta?",
+            "¿Prefieres abrazos o caricias?",
+            "¿Qué recuerdo divertido tienes de una cita?",
+            "¿Prefieres luz tenue o completa?",
+            "¿Cuál es tu zona favorita para recibir caricias?",
+            "¿Prefieres que te hablen suave o con más intensidad?",
+            "¿Qué te gusta más: el baile lento o el perreo?",
+            "¿Cuál ha sido tu mejor cumplido recibido?",
+            "¿Qué te pone de buen humor en una noche con amigos?"
+        ],
+        reto: [
+            "Baila una canción completa pegado/a a alguien del grupo.",
+            "Bésale la mejilla muy cerca a la persona que elijas.",
+            "Dale un masaje en los hombros a alguien.",
+            "Haz un baile suave imitando poses.",
+            "Siéntate en el regazo de alguien durante una canción.",
+            "Bésale el cuello a la persona que elijas.",
+            "Acaríciale la espalda a alguien.",
+            "Baila de espaldas a alguien.",
+            "Dale un abrazo muy apretado a la persona que elijas.",
+            "Come algo de la mano de alguien sin usar las tuyas.",
+            "Dale un beso corto pero bonito a alguien.",
+            "Masajea las piernas de alguien.",
+            "Baila lento de frente con alguien.",
+            "Susúrrale algo al oído a la persona que elijas.",
+            "Acaríciale la cintura a alguien.",
+            "Hazle un cumplido sincero a cada persona del grupo.",
+            "Baila solo/a de forma divertida durante 20 segundos.",
+            "Elige a alguien y dale un abrazo de 15 segundos.",
+            "Imita la forma de hablar de alguien del grupo.",
+            "Tómate un shot y di algo gracioso."
+        ]
+    },
+
+    // NIVEL 4: Solo Retos (Medio) - 30 textos
+    4: [
+        "Baila sensual pegado/a frotando el cuerpo con alguien.",
+        "Bésale con lengua a la persona que elijas mientras bailan.",
+        "Acaríciale el pecho a alguien.",
+        "Bésale el cuello con más intensidad a alguien.",
+        "Haz perreo lento sentado/a encima de alguien.",
+        "Acaríciale las nalgas a la persona que elijas.",
+        "Dale un beso profundo con manos explorando.",
+        "Baila quitándote una prenda lentamente.",
+        "Dale besos bajando por el pecho a alguien.",
+        "Acaricia la zona sensible de alguien.",
+        "Baila mostrando más piel debajo de la ropa.",
+        "Dale un beso intenso mientras exploran.",
+        "Frota tu cuerpo más cerca mientras bailan.",
+        "Bésale el abdomen a alguien.",
+        "Exploren mutuamente con las manos.",
+        "Tómate un shot completo.",
+        "Haz un baile sensual solo para el grupo.",
+        "Haz un striptease lento.",
+        "Muestra una foto candente (si tienes).",
+        "Muestra tu galería privada (elige qué mostrar).",
+        "Muestra chats interesantes.",
+        "Déjate tomar fotos sexys por alguien.",
+        "Baila sola/o de forma provocativa.",
+        "Quítate una prenda lentamente.",
+        "Haz una pose sexy.",
+        "Elige a alguien y báilale pegado/a.",
+        "Dale nalgadas suaves a alguien.",
+        "Susúrrale una frase atrevida a alguien.",
+        "Baila tocándote el cuerpo.",
+        "Elige a dos personas y báilales al mismo tiempo."
+    ],
+
+    // NIVEL 5: Solo Retos (Más Intensos) - 30 textos
+    5: [
+        "Baila sensual frotando todo el cuerpo con alguien.",
+        "Bésale con lengua profundo a la persona que elijas.",
+        "Acaríciale la zona íntima a alguien.",
+        "Haz perreo intenso sentado/a encima de alguien.",
+        "Bésale y chúpale el cuello a alguien.",
+        "Quítate dos prendas.",
+        "Frota tu cuerpo contra el de alguien.",
+        "Baila quitándote ropa lentamente.",
+        "Bésale bajando por el cuerpo a alguien.",
+        "Acaríciale las nalgas fuerte a alguien.",
+        "Haz un striptease más largo.",
+        "Dale un beso intenso mientras le tocas.",
+        "Muestra fotos más privadas.",
+        "Déjate tomar fotos sexys.",
+        "Tómate dos shots seguidos.",
+        "Baila tocándote el cuerpo de forma provocativa.",
+        "Cuéntale una fantasía a alguien.",
+        "Haz un baile imitando una escena hot.",
+        "Quítate otra prenda.",
+        "Baila en ropa interior.",
+        "Elige a alguien y explora su cuerpo con las manos.",
+        "Dale un masaje sensual a alguien.",
+        "Frota tu zona íntima contra alguien.",
+        "Bésale el pecho a alguien.",
+        "Deja que alguien te toque por debajo de la ropa.",
+        "Haz un baile sentado/a encima de alguien.",
+        "Dale nalgadas más fuertes.",
+        "Susúrrale algo muy atrevido.",
+        "Quítale una prenda a alguien.",
+        "Baila casi sin ropa frente al grupo."
+    ],
+
+    // NIVEL 6: Retos +18 - 30 textos
+    6: [
+        "Bésale bajando por todo el cuerpo a alguien.",
+        "Explora la zona íntima de alguien con la boca.",
+        "Prueba posición de pie con alguien.",
+        "Posición de perrito con alguien.",
+        "Sexo oral completo con alguien.",
+        "Penetración en diferentes ángulos.",
+        "Móntate controlando el ritmo sobre alguien.",
+        "Penetración en posición de costado.",
+        "Frotamiento intenso hasta penetrar.",
+        "Prueba penetración de pie.",
+        "Sexo oral mientras te tocan.",
+        "Posición donde estés encima.",
+        "Elige a alguien y estimúlale con la boca.",
+        "Deja que alguien te estimule con la boca.",
+        "Prueba posición de rodillas.",
+        "Penetración mientras se besan.",
+        "Estimulación mutua con las manos.",
+        "Sexo oral y penetración combinados.",
+        "Posición de lado con caricias.",
+        "Prueba una posición nueva que elijan.",
+        "Frotamiento intenso sin penetrar primero.",
+        "Penetración lenta y profunda.",
+        "Sexo oral mientras está de pie.",
+        "Posición de perrito con nalgadas.",
+        "Móntate de frente.",
+        "Penetración mientras se miran a los ojos.",
+        "Estimulación con dedos y boca.",
+        "Prueba posición invertida (si se animan).",
+        "Sexo oral mutuo al mismo tiempo.",
+        "Terminen en la posición que más les guste."
+    ]
+};
+    const levelNames = {
+        1: "Nivel 1 - Yo Nunca Nunca (Versión Ligera)",
+        2: "Nivel 2 – Yo Nunca Nunca (Versión Cargada)",
+        3: "Nivel 3 – Verdad o Reto",
+        4: "Nivel 4 – Solo Retos (Medio)",
+        5: "Nivel 5 – Solo Retos (Más Intensos)",
+        6: "Nivel 6 – Retos +18"
+    };
+
+    let currentLevel = 1;
+    let currentNivel3Subtype = 'verdad'; // 'verdad' o 'reto'
+    let currentCards = [];
+    
+    // Objeto para mantener persistencia independiente de cajas en cada nivel/subtipo
+    let levelBoxStates = {
+        1: [],
+        2: [],
+        3: {
+            verdad: [],
+            reto: []
+        },
+        4: [],
+        5: [],
+        6: []
+    };
+
+    function showStep(stepId) {
+        document.getElementById('stepLevels').classList.add('hidden');
+        document.getElementById('stepGame').classList.add('hidden');
+
+        // Si se regresa al menú principal, se reinicia el estado de todas las cajas
+        if (stepId === 'stepLevels') {
+            resetAllBoxStates();
+        }
+
+        document.getElementById(stepId).classList.remove('hidden');
+    }
+
+    // Reinicia el estado de todas las cajas de todos los niveles
+    function resetAllBoxStates() {
+        levelBoxStates = {
+            1: new Array(db[1].length).fill(false),
+            2: new Array(db[2].length).fill(false),
+            3: {
+                verdad: new Array(db[3].verdad.length).fill(false),
+                reto: new Array(db[3].reto.length).fill(false)
+            },
+            4: new Array(db[4].length).fill(false),
+            5: new Array(db[5].length).fill(false),
+            6: new Array(db[6].length).fill(false)
+        };
+    }
+
+    function selectLevel(level) {
+        currentLevel = level;
+        document.getElementById('levelTitleHeader').innerText = levelNames[level];
+
+        if (level === 3) {
+            document.getElementById('subTypeContainer').classList.remove('hidden');
+            switchNivel3Subtype('verdad');
+        } else {
+            document.getElementById('subTypeContainer').classList.add('hidden');
+            initGridForLevel();
+        }
+
+        showStep('stepGame');
+    }
+
+    function switchNivel3Subtype(subtype) {
+        currentNivel3Subtype = subtype;
+        document.getElementById('btnVerdad').className = `sub-type-btn ${subtype === 'verdad' ? 'active' : ''}`;
+        document.getElementById('btnReto').className = `sub-type-btn ${subtype === 'reto' ? 'active' : ''}`;
+        initGridForLevel();
+    }
+
+    function getCurrentStates() {
+        if (currentLevel === 3) {
+            return levelBoxStates[3][currentNivel3Subtype];
+        }
+        return levelBoxStates[currentLevel];
+    }
+
+    function initGridForLevel() {
+        if (currentLevel === 3) {
+            currentCards = [...db[3][currentNivel3Subtype]];
+        } else {
+            currentCards = [...db[currentLevel]];
+        }
+
+        const states = getCurrentStates();
+
+        const grid = document.getElementById('boxGrid');
+        grid.innerHTML = '';
+
+        currentCards.forEach((_, index) => {
+            const box = document.createElement('div');
+            box.className = 'box';
+            box.id = `box-${index}`;
+            
+            // Mantener estado visual si la caja ya fue abierta previamente
+            if (states[index]) {
+                box.classList.add('opened');
+                box.innerText = '📦';
+            } else {
+                box.innerText = index + 1;
+            }
+
+            box.onclick = () => openBox(index);
+            grid.appendChild(box);
+        });
+    }
+
+    function openBox(index) {
+        const states = getCurrentStates();
+        if (states[index]) return; // Si ya está abierta, no hace nada
+
+        states[index] = true; // Guardar estado en el registro persistente
+        const boxElem = document.getElementById(`box-${index}`);
+        boxElem.classList.add('opened');
+        boxElem.innerText = '📦';
+
+        // Título del modal
+        let titleText = levelNames[currentLevel];
+        if (currentLevel === 3) {
+            titleText += ` (${currentNivel3Subtype.toUpperCase()})`;
+        }
+
+        document.getElementById('modalTitle').innerText = titleText;
+        document.getElementById('modalText').innerText = `"${currentCards[index]}"`;
+        document.getElementById('modalBoxNum').innerText = `Caja N° ${index + 1}`;
+
+        document.getElementById('prizeModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('prizeModal').style.display = 'none';
+
+        const states = getCurrentStates();
+        if (!states.includes(false)) {
+            alert('¡Han completado todas las cajas de esta categoría!');
+        }
+    }
+
+    function pickRandomBox() {
+        const states = getCurrentStates();
+        let closedIndexes = [];
+        states.forEach((isOpen, index) => {
+            if (!isOpen) closedIndexes.push(index);
+        });
+
+        if (closedIndexes.length === 0) {
+            alert('¡Todas las cajas de esta categoría están abiertas!');
+            return;
+        }
+
+        let turns = 0;
+        const interval = setInterval(() => {
+            const tempIndex = closedIndexes[Math.floor(Math.random() * closedIndexes.length)];
+            const tempBox = document.getElementById(`box-${tempIndex}`);
+            
+            tempBox.style.borderColor = '#ec4899';
+            setTimeout(() => { 
+                if(!states[tempIndex]) tempBox.style.borderColor = '#818cf8'; 
+            }, 80);
+            
+            turns++;
+            if (turns > 12) {
+                clearInterval(interval);
+                const finalIndex = closedIndexes[Math.floor(Math.random() * closedIndexes.length)];
+                openBox(finalIndex);
+            }
+        }, 100);
+    }
+
+    // Inicializar los estados de las cajas al cargar la aplicación
+    resetAllBoxStates();
+</script>
+
+</body>
+</html>
